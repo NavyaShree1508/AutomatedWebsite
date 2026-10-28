@@ -1,15 +1,964 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Docker Website</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>DeployX | Automated Website Deployment Using Docker</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f8fc;
+            color: #172033;
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        /* NAVBAR */
+
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            height: 70px;
+            background: #071b38;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 7%;
+            color: white;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.15);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 25px;
+            font-weight: bold;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, #168cff, #5c6cff);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #168cff;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            color: #d7e3f4;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #36a2ff;
+        }
+
+        .github-btn {
+            background: #ffffff;
+            color: #111827 !important;
+            padding: 9px 16px;
+            border-radius: 22px;
+            font-weight: bold;
+        }
+
+        /* HERO */
+
+        .hero {
+            background: linear-gradient(120deg, #071b38, #0b2f61);
+            color: white;
+            padding: 80px 7%;
+            min-height: 570px;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .badge {
+            display: inline-block;
+            color: #52b5ff;
+            font-size: 13px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 58px;
+            line-height: 1.05;
+            margin-bottom: 25px;
+        }
+
+        .hero h1 span {
+            color: #168cff;
+        }
+
+        .hero p {
+            max-width: 620px;
+            color: #c8d6e8;
+            font-size: 17px;
+            margin-bottom: 30px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 13px 22px;
+            border-radius: 8px;
+            display: inline-block;
+            font-weight: bold;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #168cff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0878e5;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            border: 1px solid #6d8db4;
+            color: white;
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* TERMINAL */
+
+        .terminal {
+            background: #07111f;
+            border: 1px solid #31577e;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .terminal-top {
+            background: #101d2d;
+            padding: 13px 18px;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+
+        .red { background: #ff5f57; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #28c840; }
+
+        .terminal-body {
+            padding: 25px;
+            color: #b7e6ff;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            min-height: 280px;
+        }
+
+        .terminal-green {
+            color: #42e890;
+        }
+
+        .terminal-blue {
+            color: #45aaff;
+        }
+
+        /* STATUS */
+
+        .status-bar {
+            width: 86%;
+            margin: -30px auto 50px;
+            background: white;
+            border-radius: 14px;
+            padding: 25px 30px;
+            box-shadow: 0 8px 30px rgba(24,51,84,0.1);
+            display: grid;
+            grid-template-columns: 1.3fr 1fr 1fr 1fr;
+            gap: 25px;
+            position: relative;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .status-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #e9f7ee;
+            color: #18a957;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+        }
+
+        .status-item h4 {
+            font-size: 13px;
+            color: #718096;
+        }
+
+        .status-item p {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* GENERAL */
+
+        section {
+            padding: 75px 7%;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 45px;
+        }
+
+        .section-title h2 {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+
+        .section-title p {
+            color: #68758a;
+        }
+
+        /* TOOLS */
+
+        .tools {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 18px;
+        }
+
+        .tool-card {
+            background: white;
+            padding: 25px 20px;
+            border: 1px solid #e0e7f0;
+            border-radius: 13px;
+            transition: 0.3s;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(15,45,80,0.1);
+        }
+
+        .tool-icon {
+            width: 48px;
+            height: 48px;
+            background: #eaf4ff;
+            color: #087bea;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+            margin-bottom: 18px;
+        }
+
+        .tool-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .tool-card p {
+            font-size: 13px;
+            color: #718096;
+            min-height: 60px;
+        }
+
+        .tool-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #087bea;
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        /* PIPELINE */
+
+        .pipeline-section {
+            background: #071b38;
+            color: white;
+        }
+
+        .pipeline-section .section-title p {
+            color: #b9cce2;
+        }
+
+        .pipeline {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            align-items: center;
+        }
+
+        .pipeline-step {
+            text-align: center;
+            position: relative;
+        }
+
+        .pipeline-circle {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: #123963;
+            border: 2px solid #168cff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto auto 15px;
+            font-size: 27px;
+        }
+
+        .pipeline-step h3 {
+            font-size: 15px;
+            margin-bottom: 5px;
+        }
+
+        .pipeline-step p {
+            font-size: 12px;
+            color: #b8cce2;
+        }
+
+        .arrow {
+            position: absolute;
+            right: -17px;
+            top: 30px;
+            color: #168cff;
+            font-size: 22px;
+        }
+
+        /* PROJECT GRID */
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e1e8f0;
+            border-radius: 14px;
+            padding: 28px;
+        }
+
+        .card h3 {
+            margin-bottom: 18px;
+            font-size: 21px;
+        }
+
+        .card p {
+            color: #69778c;
+            font-size: 15px;
+        }
+
+        /* CODE */
+
+        .code-box {
+            background: #081525;
+            color: #cce6ff;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: Consolas, monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+
+        .code-line {
+            margin: 7px 0;
+        }
+
+        .code-number {
+            color: #5d7189;
+            display: inline-block;
+            width: 30px;
+        }
+
+        .copy-btn {
+            float: right;
+            background: #1d3856;
+            color: white;
+            border: none;
+            padding: 7px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* STRUCTURE */
+
+        .folder {
+            color: #178cff;
+        }
+
+        .file {
+            color: #334155;
+        }
+
+        .tree {
+            background: #f5f8fc;
+            padding: 22px;
+            border-radius: 10px;
+            font-family: Consolas, monospace;
+            line-height: 2;
+        }
+
+        /* FEATURES */
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .feature {
+            background: white;
+            padding: 30px;
+            border-radius: 14px;
+            border: 1px solid #e1e8f0;
+        }
+
+        .feature-number {
+            font-size: 32px;
+            color: #168cff;
+            font-weight: bold;
+        }
+
+        .feature h3 {
+            margin: 10px 0;
+        }
+
+        .feature p {
+            color: #69778c;
+            font-size: 14px;
+        }
+
+        /* DEMO */
+
+        .demo {
+            background: linear-gradient(135deg, #eaf5ff, #f7fbff);
+        }
+
+        .demo-box {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 40px;
+            border-radius: 18px;
+            border: 1px solid #dce7f3;
+        }
+
+        .demo-step {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .demo-number {
+            min-width: 38px;
+            height: 38px;
+            background: #168cff;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+        }
+
+        .demo-step h3 {
+            margin-bottom: 4px;
+        }
+
+        .demo-step p {
+            color: #6c798b;
+            font-size: 14px;
+        }
+
+        /* TECHNOLOGIES */
+
+        .tech-list {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tech {
+            background: white;
+            border: 1px solid #dfe7ef;
+            padding: 14px 22px;
+            border-radius: 30px;
+            font-weight: bold;
+        }
+
+        /* ABOUT */
+
+        .about {
+            max-width: 900px;
+            margin: auto;
+            text-align: center;
+        }
+
+        .about p {
+            color: #66758a;
+            margin-bottom: 15px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            background: #071b38;
+            color: #b8cbe0;
+            padding: 35px 7%;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        footer strong {
+            color: white;
+        }
+
+        footer a {
+            color: #66baff;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width: 1000px) {
+
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .tools {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .pipeline {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 35px;
+            }
+
+            .arrow {
+                display: none;
+            }
+
+            .status-bar {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media(max-width: 700px) {
+
+            nav {
+                padding: 0 5%;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 60px 6%;
+            }
+
+            .hero h1 {
+                font-size: 42px;
+            }
+
+            section {
+                padding: 55px 6%;
+            }
+
+            .tools,
+            .features,
+            .project-grid,
+            .status-bar {
+                grid-template-columns: 1fr;
+            }
+
+            .pipeline {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .section-title h2 {
+                font-size: 29px;
+            }
+
+            footer {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-    <h1>Welcome to My pbl Automated Website</h1>
+<!-- NAVIGATION -->
 
-    <h2>Automated Website Deployment using Docker</h2>
+<nav>
 
-    <p>Docker Container is running successfully!</p>
+    <a href="#home" class="logo">
+        <div class="logo-icon">DX</div>
+        Deploy<span>X</span>
+    </a>
 
-</body>
-</html>
+    <div class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#overview">Overview</a>
+        <a href="#tools">Tools</a>
+        <a href="#pipeline">Pipeline</a>
+        <a href="#demo">Live Demo</a>
+        <a href="#about">About</a>
+
+        <a
+            href="https://github.com/Navyashree1508/Automatedwebsite"
+            target="_blank"
+            class="github-btn">
+            View Repository ↗
+        </a>
+    </div>
+
+</nav>
+
+
+<!-- HERO -->
+
+<section class="hero" id="home">
+
+    <div>
+
+        <div class="badge">● AUTOMATED WEBSITE DEPLOYMENT</div>
+
+        <h1>
+            Build once.<br>
+            <span>Deploy anywhere.</span>
+        </h1>
+
+        <p>
+            A Docker-based CI/CD deployment project using
+            GitHub, GitHub Actions and Docker Hub to
+            automate the process of building and publishing
+            a website container.
+        </p>
+
+        <div class="hero-buttons">
+
+            <a
+                href="http://localhost:8080"
+                target="_blank"
+                class="btn btn-primary">
+                🚀 Open Live Website
+            </a>
+
+            <a href="#pipeline" class="btn btn-outline">
+                Explore Deployment ↓
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div class="terminal">
+
+        <div class="terminal-top">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+        </div>
+
+        <div class="terminal-body">
+
+            <div class="terminal-green">
+                ✔ Deployment System Ready
+            </div>
+
+            <br>
+
+            <div>
+                $ docker build -t mywebsite .
+            </div>
+
+            <div>
+                Sending build context...
+            </div>
+
+            <div>
+                Step 1/3 : FROM nginx:alpine
+            </div>
+
+            <div>
+                Step 2/3 : COPY index.html
+            </div>
+
+            <div>
+                Step 3/3 : EXPOSE 80
+            </div>
+
+            <br>
+
+            <div class="terminal-blue">
+                Successfully built mywebsite
+            </div>
+
+            <div class="terminal-green">
+                ✔ Docker image ready
+            </div>
+
+            <br>
+
+            <div>
+                $ docker run -d -p 8080:80
+            </div>
+
+            <div class="terminal-green">
+                ✔ Container running
+            </div>
+
+            <div class="terminal-green">
+                ✔ Website available at :8080
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- STATUS -->
+
+<div class="status-bar">
+
+    <div class="status-item">
+
+        <div class="status-icon">●</div>
+
+        <div>
+            <h4>Deployment Status</h4>
+            <p>Docker Container Ready</p>
+        </div>
+
+    </div>
+
+    <div class="status-item">
+
+        <div class="status-icon">🌐</div>
+
+        <div>
+            <h4>Local Website</h4>
+            <p>localhost:8080</p>
+        </div>
+
+    </div>
+
+    <div class="status-item">
+
+        <div class="status-icon">▣</div>
+
+        <div>
+            <h4>Container</h4>
+            <p>mywebsite-container</p>
+        </div>
+
+    </div>
+
+    <div class="status-item">
+
+        <div class="status-icon">⚙</div>
+
+        <div>
+            <h4>Automation</h4>
+            <p>GitHub Actions</p>
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- PROJECT TOOLS -->
+
+<section id="tools">
+
+    <div class="section-title">
+
+        <h2>Project Tools</h2>
+
+        <p>
+            Every tool has a specific role in the deployment workflow.
+        </p>
+
+    </div>
+
+
+    <div class="tools">
+
+        <div class="tool-card">
+
+            <div class="tool-icon">⌘</div>
+
+            <h3>VS Code</h3>
+
+            <p>
+                Write and edit the website,
+                Dockerfile and GitHub Actions workflow.
+            </p>
+
+            <a
+                href="https://code.visualstudio.com/"
+                target="_blank"
+                class="tool-link">
+                Open VS Code Website ↗
+            </a>
+
+        </div>
+
+
+        <div class="tool-card">
+
+            <div class="tool-icon">◉</div>
+
+            <h3>GitHub</h3>
+
+            <p>
+                Stores the source code and
+                provides version control.
+            </p>
+
+            <a
+                href="https://github.com/Navyashree1508/Automatedwebsite"
+                target="_blank"
+                class="tool-link">
+                View Repository ↗
+            </a>
+
+        </div>
+
+
+        <div class="tool-card">
+
+            <div class="tool-icon">⚙</div>
+
+            <h3>GitHub Actions</h3>
+
+            <p>
+                Automatically builds the Docker
+                image whenever code is pushed.
+            </p>
+
+            <a
+                href="https://github.com/Navyashree1508/Automatedwebsite/actions"
+                target="_blank"
+                class="tool-link">
+                View Workflows ↗
+            </a>
+
+        </div>
+
+
+        <div class="tool-card">
+
+            <div class="tool-icon">🐳</div>
+
+            <h3>Docker Desktop</h3>
+
+            <p>
+                Builds Docker images and
+                runs containers locally.
+            </p>
+
+            <a
+                href="https://www.docker.com/products/docker-desktop/"
+                target="_blank"
+                class="tool-link">
+                Open Docker Desktop ↗
+            </a>
+
+        </div>
+
+
+        <div class="tool-card">
+
+            <div class="tool-icon">📦</div>
+
+            <h3>Docker Hub</h3>
+
+            <p>
+                Stores and distributes the
+                generated Docker image.
+            </p>
+
+            <a
+                href="https://hub.docker.com/r/shreen1508/mywebsite"
+                target="_blank"
+                class="tool-link">
+                View Docker Image ↗
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- PIPELINE
