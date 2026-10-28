@@ -6,12 +6,21 @@ on:
       - master
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Build Docker Image
         run: docker build -t mywebsite .
+
+      - name: Run Docker Container
+        run: docker run -d -p 8080:80 --name mywebsite-container mywebsite
+
+      - name: Test Website
+        run: curl -f http://localhost:8080
+
+      - name: Stop Container
+        run: docker stop mywebsite-container
